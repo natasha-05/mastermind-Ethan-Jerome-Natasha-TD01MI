@@ -22,17 +22,8 @@ Label(root,
       text=' À propos - Préférences - Nouvelle partie - Quitter',
       foreground="black",
       background="white").pack(anchor=N, fill=X)
-# aires de jeu:
-game_area = GameArea(text="Aire de jeu")
-game_area.pack(anchor=N, expand=True, fill=BOTH)
-# Creation du  menu principal:
-root_menu = Menu(root)
-root['menu'] = root_menu
-main_cascade = Menu(root_menu)
-root_menu.add_cascade(label='Mastermind', menu=main_cascade)
-main_cascade.add_command(label='Préférences', command=lambda: SettingsWindow(game_area))
-main_cascade.add_separator()
-main_cascade.add_command(label='À propos', command=about)
+
+
 
 # quitter
 Button(text='Quitter [', command=root.destroy).pack(anchor=S, fill=X)
