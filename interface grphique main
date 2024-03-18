@@ -40,6 +40,9 @@ root.bind('<Escape>', lambda _event: root.destroy())
 
 root.mainloop()
 
+# partie Jérôme
+
+# Sert a evaluer si la position des couleurs de la liste propositions est la même que celle de la liste secret
 
 def evaluer_proposition(secret, proposition):
     bien_places = 0
@@ -50,3 +53,9 @@ def evaluer_proposition(secret, proposition):
         elif proposition[i] in secret:
             mal_places += 1
     return bien_places, mal_places
+
+Logique du jeu : Jérôme
+
+Interface graphique : Natasha
+
+Tout rassembler + propreté code : Ethan
