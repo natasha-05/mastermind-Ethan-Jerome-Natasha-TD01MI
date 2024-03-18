@@ -1,0 +1,41 @@
+from tkinter import Tk
+from tkinter import BOTH, N, S, X
+from tkinter import Label, Menu
+from tkinter.ttk import Button
+from tkinter.messagebox import showinfo
+from game_area import GameArea
+from preferences import SettingsWindow
+def about():
+    
+    showinfo('À propos',
+             message=
+                     "Ce jeu consiste à trouver un code secret composé de plusieurs couleurs, sachant que "
+                     "chaque couleur peut apparaître plusieurs fois.\n\n"
+                     
+                     "et le nombre de tentatives que vous pouvez effectuer dans le menu Préférences.")
+# fenetre principal
+root = Tk()
+root.title('Mastermind')
+root.resizable(True, True)
+# Creation canvas 
+Label(root,
+      text=' À propos - Préférences - Nouvelle partie - Quitter',
+      foreground="black",
+      background="white").pack(anchor=N, fill=X)
+# aires de jeu:
+game_area = GameArea(text="Aire de jeu")
+game_area.pack(anchor=N, expand=True, fill=BOTH)
+# Creation du  menu principal:
+root_menu = Menu(root)
+root['menu'] = root_menu
+main_cascade = Menu(root_menu)
+root_menu.add_cascade(label='Mastermind', menu=main_cascade)
+main_cascade.add_command(label='Préférences', command=lambda: SettingsWindow(game_area))
+main_cascade.add_separator()
+main_cascade.add_command(label='À propos', command=about)
+
+# quitter
+Button(text='Quitter [', command=root.destroy).pack(anchor=S, fill=X)
+root.bind('<Escape>', lambda _event: root.destroy())
+
+root.mainloop()
