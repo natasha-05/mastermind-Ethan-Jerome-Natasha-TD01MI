@@ -1,52 +1,60 @@
-from tkinter import Tk
-from tkinter import BOTH, N, S, X
-from tkinter import Label, Menu
-from tkinter.ttk import Button
-from tkinter.messagebox import showinfo
-from game_area import GameArea
-from preferences import SettingsWindow
-def about():
-    
-    showinfo('À propos',
-             message=
-                     "Ce jeu consiste à trouver un code secret composé de plusieurs couleurs, sachant que "
-                     "chaque couleur peut apparaître plusieurs fois.\n\n"
-                     
-                     "et le nombre de tentatives que vous pouvez effectuer dans le menu Préférences.")
-# fenetre principal
-root = Tk()
-root.title('Mastermind')
-root.resizable(True, True)
-# Creation canvas 
-Label(root,
-      text=' À propos - Préférences - Nouvelle partie - Quitter',
-      foreground="black",
-      background="white").pack(anchor=N, fill=X)
 
 
 
-# quitter
-Button(text='Quitter [', command=root.destroy).pack(anchor=S, fill=X)
-root.bind('<Escape>', lambda _event: root.destroy())
 
-root.mainloop()
 
-# partie Jérôme
 
-# Sert a evaluer si la position des couleurs de la liste propositions est la même que celle de la liste secret
 
-def evaluer_proposition(secret, proposition):
-    bien_places = 0
-    mal_places = 0
-    for i in range(len(secret)):
-        if proposition[i] == secret[i]:
-            bien_places += 1
-        elif proposition[i] in secret:
-            mal_places += 1
-    return bien_places, mal_places
 
-#Logique du jeu : Jérôme
 
-#Interface graphique : Natasha
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#bouton pour le mode sans joueur
+sans_joueur_boutton = tk.Button(fenetre, text = "mode 1 joueur")
+sans_joueur_boutton.pack(pady=5) #pady c'est la position affiche le boutton
+
+#ouvrir les parametre
+parametre_boutton = tk.Button(fenetre, text = "paramètre")
+parametre_boutton.pack(paddy=5)
+       
+#boutton sauvegarde une partie en cours
+sauvegarde_boutton=tk.Button(fenetre, text= "sauvegarder")
+sauvegarde_boutton.pack(paddy=5)
+
+
+# Bouton pour charger une partie enregistrée
+load_button = tk.Button(fenetre, text = "Charger", state="disabled")
+load_button.pack(pady=5) # Affichage du bouton de chargement
+fenetre = tk.Tk()
+fenetre.title("Mastermind")
+fenetre. geometry ("600*500")
+# Paramètres du jeu par défaut num slots
+num_slots = 4
+num_colors = 8
+max_attempts = 10
+mode = "2 joueurs" # Mode de jeu par défaut
+secret code = None # Initialisation du code secret
+proposals = [] # Liste pour stocker les propositions et réponses setup_widgets() # Configuration des widgets
+
+
+fenetre.mainloop()
+
 
 #Tout rassembler + propreté code : Ethan
