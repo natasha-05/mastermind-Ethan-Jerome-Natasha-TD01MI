@@ -28,7 +28,7 @@ for i in range(4):
 
 #INDICE:    
     
-#verifie si les couleurs sont bien placé
+#verifie si les couleurs sont bien placé et fait la somme
 def compare(code_secret,decode):
 
     couleurs_bien_placees = 0
