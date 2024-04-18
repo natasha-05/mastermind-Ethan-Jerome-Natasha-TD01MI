@@ -1,4 +1,4 @@
-
+ 
 from random import *
 
 choix_couleur = ["white", "blue", "green", "yellow", "pink", "purple", "orange", "black", "v", "w", "x"] 
@@ -25,7 +25,7 @@ for i in range(4):
 
 #INDICE:    
     
-#verifie si les couleurs sont bien placé
+#verifie si les couleurs sont bien placé et fait la somme
 def compare(code_secret,decode):
 
     couleurs_bien_placees = 0
