@@ -1,6 +1,6 @@
  from random import *
 
-choix_couleur = ["white", "blue", "green", "yellow", "pink", "purple", "orange", "black", "v", "w", "x"] 
+choix_couleur = ["white", "blue", "green", "yellow", "pink", "purple", "orange", "black"] 
 code_secret = []
 
 for i in range(4):
