@@ -1,0 +1,318 @@
+import tkinter as tk, random
+
+ 
+
+fenetre = tk.Tk()
+
+ 
+
+# Définition des variables globales
+
+
+nombre_essai = 4
+
+
+nombre_couleur = 6
+
+
+longueur_comb = 5
+
+
+position_x = 0
+
+
+position_y = 0
+
+
+liste_essai = []
+
+
+hauteur_cercle = 1
+
+ 
+
+# Création des cercles de couleur
+
+
+banque_couleur = ['red', 'blue', 'green', 'yellow','grey','purple','pink','brown']
+
+
+#couleur = ['red', 'blue', 'green', 'yellow','grey','purple','pink','brown']
+
+ 
+
+couleur = []
+
+ 
+
+for i in range(nombre_couleur):
+
+
+    couleur.append(banque_couleur[i])
+
+ 
+
+code_secret = random.choices(couleur, k = longueur_comb)
+
+ 
+
+print(code_secret)
+
+
+
+
+
+ 
+# Fonction pour récupérer la couleur sélectionnée
+
+
+def couleur_selectionnee(event):
+
+
+    global position_x, position_y,hauteur_cercle, liste_essai
+
+
+    couleur_bien_place = 0
+
+
+    couleur_mal = 0
+
+
+    couleur = canvas.itemcget(tk.CURRENT, "fill")  # Récupérer la couleur du cercle cliqué
+
+
+    canvas.itemconfig(cercles[position_y][position_x], fill=couleur)  # Mettre à jour la couleur du cercle sélectionné
+
+
+    # Passer à la position suivante
+
+
+    position_x += 1
+
+
+    liste_essai.append(canvas.itemcget(tk.CURRENT, "fill"))
+
+
+    if position_x == longueur_comb:  # Si nous avons atteint la fin de la ligne
+
+
+        position_x = 0
+
+
+        position_y += 1
+
+
+        if position_y == nombre_essai:  # Si nous avons atteint la fin de la grille
+
+
+            position_y = 0
+
+
+            position_x = 0
+
+
+    print(liste_essai)
+
+
+    code_secret_occurrences = {}
+
+
+    for couleur in code_secret:
+
+
+        code_secret_occurrences[couleur] = code_secret_occurrences.get(couleur, 0) + 1
+
+
+    if len(liste_essai) == longueur_comb  :
+
+
+        for i in range(longueur_comb):
+
+
+            if liste_essai[i] == code_secret[i]:
+
+
+                couleur_bien_place += 1
+
+
+                code_secret_occurrences[liste_essai[i]] -= 1
+
+
+            elif liste_essai[i] in code_secret_occurrences and code_secret_occurrences[liste_essai[i]] > 0:  # Vérifie si la couleur est mal placée
+
+
+                couleur_mal += 1
+
+
+            # Décrémente l'occurrence de la couleur dans le dictionnaire du code secret
+
+
+                code_secret_occurrences[liste_essai[i]] -= 1
+
+
+        print(couleur_mal)
+
+
+        cercle_noir(couleur_bien_place,hauteur_cercle)
+
+
+        cercle_blanc(couleur_mal,hauteur_cercle)
+
+
+        if couleur_bien_place == longueur_comb :
+
+
+            fin_gagnant()
+
+
+        hauteur_cercle += 1
+
+
+        liste_essai.clear()        
+
+
+    print(couleur_bien_place)
+
+
+    print(couleur_mal)
+
+ 
+
+def cercle_noir(nb,hauteur):
+
+
+    x0 = 150 + longueur_comb * 100
+
+
+    x1 = 175 + longueur_comb * 100
+
+
+    y0 = hauteur * 75 - 30
+
+
+    y1 = hauteur * 75 - 30
+
+
+    for j in range(nb):
+
+
+        canvas.create_oval(x0 + j * 25 , y0 + 25 , x1 + j * 25, y1 + 50, fill='black')
+
+ 
+
+def cercle_blanc(nb2,hauteur):
+
+
+    x0 = 150 + longueur_comb * 100
+
+
+    x1 = 175 + longueur_comb * 100
+
+
+    y0 = hauteur * 75 - 60
+
+
+    y1 = hauteur * 75 - 60
+
+
+    for j in range(nb2):
+
+
+        canvas.create_oval(x0 + j * 25 , y0 + 25 , x1 + j * 25, y1 + 50, fill='white')    
+
+ 
+
+def fin_gagnant():
+
+
+    victoire = Label(fenetre, text = 'gagné')
+
+
+    victoire.grid(row = 1,column = 0)
+
+ 
+
+print("bonjour")
+
+ 
+
+# Création de la fenêtre et du canevas
+
+
+canvas = tk.Canvas(fenetre, width=3000, height=3000)
+
+
+canvas.grid(row=0, column=0)
+
+
+
+
+
+ 
+for i in range(nombre_couleur):
+
+
+    y0 = 50 + i * 50
+
+
+    y1 = 100 + i * 50
+
+
+    cercle_couleur = canvas.create_oval(50, y0, 100, y1, fill=couleur[i])
+
+
+    # Lier l'événement de clic à chaque cercle de couleur
+
+
+    canvas.tag_bind(cercle_couleur, "<Button-1>", couleur_selectionnee)
+
+ 
+
+# Création des cercles blancs pour les essais
+
+
+cercles = []
+
+
+for k in range(nombre_essai):
+
+
+    ligne = []
+
+
+    x0 = 150
+
+
+    y0 = 50 + k * 75
+
+
+    x1 = 200
+
+
+    y1 = 100 + k * 75
+
+
+    for l in range(longueur_comb):
+
+
+        cercle = canvas.create_oval(x0 + l * 100, y0, x1 + l * 100, y1, fill='white')
+
+
+        ligne.append(cercle)
+
+
+    cercles.append(ligne)
+
+
+
+
+
+ 
+button = tk.Button(fenetre, text='bonjour')
+
+
+button.grid(row=0, column=1)
+
+ 
+
+fenetre.mainloop()
