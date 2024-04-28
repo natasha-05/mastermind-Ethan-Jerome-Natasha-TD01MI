@@ -1,0 +1,298 @@
+import tkinter as tk,random
+from tkinter.simpledialog import messagebox
+
+fenetre = tk.Tk()
+fenetre.title("Mastermind")
+boutons_affiches = [] #liste de tous les boutons affichés à l'écran pour pouvoir les effacer quand on change d'interface
+compteur_2_joueur = 0
+position_x = 0
+position_y = 0
+liste_essai = []
+hauteur_cercle = 1 #--> pour placer les cercles noir et blanc en face du code_essai
+cercles_code_secret = []
+code_secret_2_joueur = [] #--> le code secret si l'on passe par 2 joueur
+cercles_code = [] 
+code_secret_1_joueur = [] #--> le code secret si l'on passe par un joueur
+code_secret = [] #--> le code secret général
+
+nombre_indice = 0 #--> le nombre de fois où l'on clique sur le bouton indice
+
+# Création des cercles de couleur
+banque_couleur = ['red', 'blue', 'green', 'yellow','grey','orange','cyan','purple','pink','brown']
+#couleur = ['red', 'blue', 'green', 'yellow','grey','purple','pink','brown']
+
+couleur = []
+
+fin = 0 #--> permet que si le jeu se termine alors on ne peu plus toucher a la grille
+
+def afficher_menu(confirmation = True):
+    """Affiche l'interface du menu
+    confirmation : booléen déterminiant s'il faut afficher une boîte de dialogue pour confirmer le retour au menu"""
+    global bouton_1j, bouton_2j, boutons_affiches, bouton_jouer, choix_nb_pions, choix_nb_couleurs, choix_nb_essais, instructions, instructions_params, taille_fenetre, texte_nb_pions, texte_nb_couleurs, texte_nb_essais,banque_couleur,couleur,compteur_2_joueur,position_x,position_y,nombre_indice,fin
+    if confirmation and not messagebox.askokcancel("Mastermind", "Si vous retournez au menu,\nvotre partie en cours sera perdue.", icon = "warning", master = fenetre):
+        return
+    
+    # Suppression de tous les widgets précédemment affichés
+    [widg.grid_remove() for widg in boutons_affiches]
+
+
+    #initialisation variable
+    code_secret.clear()
+    liste_essai.clear()
+    couleur.clear()
+    compteur_2_joueur = 0 
+    position_x = 0
+    position_y = 0
+    nombre_indice = 0
+    fin = 0
+
+    #création bouton menu
+    instructions = tk.Label(text = "Choisissez si vous voulez jouer seul (l'ordinateur choisit le code à trouver)\nou à 2 (l'un choisit le code et l'autre le devine)")
+    instructions.grid(row = 0, column = 0, columnspan = 3, pady = 10)
+    nombre_joueurs = tk.IntVar(value = 1)
+    bouton_1j = tk.Radiobutton(text = "1 joueur", variable = nombre_joueurs, value = 1)
+    bouton_1j.grid(row = 1, column = 0, pady = 10)
+    bouton_2j = tk.Radiobutton(text = "2 joueurs", variable = nombre_joueurs, value = 2)
+    bouton_2j.grid(row = 1, column = 2, pady = 10)
+    instructions_params = tk.Label(text = "Vous pouvez également configurer ces paramètres avant de lancer la partie")
+    instructions_params.grid(row = 2, column = 0, columnspan = 3, pady = (50, 10))
+    texte_nb_pions = tk.Label(text = "Nombre de pions du code")
+    texte_nb_pions.grid(row = 3, column = 0, padx = 20)
+    texte_nb_couleurs = tk.Label(text = "Nombre de couleurs différentes")
+    texte_nb_couleurs.grid(row = 3, column = 1, padx = 20)
+    texte_nb_essais = tk.Label(text = "Nombre d'essais maximum")
+    texte_nb_essais.grid(row = 3, column = 2, padx = 20)
+    choix_nb_pions = tk.Scale(orient = "horizontal", cnf = {"from": 3}, to = 8)
+    choix_nb_pions.grid(row = 4, column = 0)
+    choix_nb_pions.set(5)
+    choix_nb_couleurs = tk.Scale(orient = "horizontal", cnf = {"from": 3}, to = 9)
+    choix_nb_couleurs.grid(row = 4, column = 1)
+    choix_nb_couleurs.set(6)
+    choix_nb_essais = tk.Scale(orient = "horizontal", cnf = {"from": 6}, to = 12)
+    choix_nb_essais.grid(row = 4, column = 2)
+    choix_nb_essais.set(6)
+    bouton_jouer = tk.Button(text = "Jouer !", command = lambda: lancer_partie() if nombre_joueurs.get() == 1 else choisir_code())
+    bouton_jouer.grid(row = 5, column = 1, pady = 50)
+    boutons_affiches = [bouton_1j, bouton_2j, bouton_jouer, choix_nb_pions, choix_nb_couleurs, choix_nb_essais, instructions, instructions_params, texte_nb_pions, texte_nb_couleurs, texte_nb_essais]
+
+# choix du code pour mode deux joueurs
+def choisir_code():
+    global boutons_affiches, canvas, espace_pions, instructions,cercles_code, couleur, cercles_code_secret,compteur_2_joueur
+    [widg.grid_remove() for widg in boutons_affiches]
+    instructions = tk.Label(text = "Choisissez le code secret")
+    instructions.grid(row = 0, column = 0, pady = 10)
+    canvas = tk.Canvas(fenetre, width = 1000, height = 600, bg = 'burlywood', highlightbackground='saddlebrown')
+    canvas.grid(row = 1, column = 0, columnspan = 5, padx = 25)
+    compteur_2_joueur += 1
+    for j in range(choix_nb_couleurs.get()):
+        couleur.append(banque_couleur[j])
+    for i in range(choix_nb_couleurs.get()):
+        y0 = 50 + i * 50
+        y1 = 100 + i * 50
+        cercle_couleur = canvas.create_oval(50, y0, 100, y1, fill=couleur[i])
+        # Lier l'événement de clic à chaque cercle de couleur
+        canvas.tag_bind(cercle_couleur, "<Button-1>", couleur_selectionnee_code_secret)
+    ligne = []
+    for l in range(choix_nb_pions.get()):
+        cercle = canvas.create_oval(150 + l * 80, 50, 200 + l * 80, 100, fill='white')
+        ligne.append(cercle)
+    cercles_code_secret.append(ligne) 
+    boutons_affiches = [canvas,instructions]
+    
+
+def lancer_partie():
+
+    "Affiche l'interface de la partie"
+    global boutons_affiches, bouton_annuler, bouton_charger, bouton_indice, bouton_menu, bouton_sauvegarder,cercles,ligne,canvas, espace_pions, instructions, taille_fenetre,code_secret,couleur,compteur_2_joueur,code_secret_2_joueur,cercles_code_secret,position_x,position_y,hauteur_cercle
+    [widg.grid_remove() for widg in boutons_affiches]
+    hauteur_cercle = 1 #--> au cas ou si joueur retourne au menu en pleine partie
+    for i in range(choix_nb_couleurs.get()):
+        couleur.append(banque_couleur[i])
+    code_secret_1_joueur = random.choices(couleur, k = choix_nb_pions.get()) # créer le code secret pour mode 1 joueur
+    if compteur_2_joueur == 1 :
+        code_secret = code_secret_2_joueur # si mode 2 joueur
+        cercles = cercles_code_secret
+    else :
+        code_secret = code_secret_1_joueur # si mode 1 joueur
+    print(code_secret)
+    instructions = tk.Label(text = "Trouvez le code secret en {} essais maximum !".format(choix_nb_essais.get()))
+    instructions.grid(row = 0, column = 0, columnspan = 5, pady = 20)
+    bouton_menu = tk.Button(text = "Retour au menu", command = afficher_menu)
+    bouton_menu.grid(row = 3, column = 0)
+    bouton_sauvegarder = tk.Button(text = "Sauvegarder")
+    bouton_sauvegarder.grid(row = 3, column = 1)
+    bouton_charger = tk.Button(text = "Charger la partie")
+    bouton_charger.grid(row = 3, column = 2)
+    bouton_indice = tk.Button(text = "Indice", command = indice)
+    bouton_indice.grid(row = 3, column = 3)
+    bouton_annuler = tk.Button(text = "Annuler coup", command = annuler)
+    bouton_annuler.grid(row = 3, column = 4)
+    canvas = tk.Canvas(fenetre, width = 1560, height = 725,bg='burlywood', highlightbackground='saddlebrown')
+    canvas.grid(row = 1, column = 0, columnspan = 5, padx = 25)
+    for i in range(choix_nb_couleurs.get()):
+        y0 = 50 + i * 50
+        y1 = 100 + i * 50
+        cercle_couleur = canvas.create_oval(50, y0, 100, y1, fill=couleur[i])
+        # Lier l'événement de clic à chaque cercle de couleur
+        canvas.tag_bind(cercle_couleur, "<Button-1>", couleur_selectionnee)
+
+        # Création des cercles blancs pour les essais
+        cercles = []
+    for k in range(choix_nb_essais.get()):
+        ligne = []
+        x0 = 150
+        y0 = 50 + k * 75
+        x1 = 200
+        y1 = 100 + k * 75
+        for l in range(choix_nb_pions.get()):
+            cercle = canvas.create_oval(x0 + l * 80, y0, x1 + l * 80, y1, fill='white')
+            ligne.append(cercle)
+        cercles.append(ligne)
+    boutons_affiches = [instructions, canvas, bouton_menu, bouton_sauvegarder, bouton_charger, bouton_indice, bouton_annuler]
+
+def couleur_selectionnee_code_secret(event):
+    global position_x, position_y,hauteur_cercle, code_secret_2_joueur,cercles_code_secret
+    couleur = canvas.itemcget(tk.CURRENT, "fill")  # Récupérer la couleur du cercle cliqué
+    canvas.itemconfig(cercles_code_secret[position_y][position_x], fill=couleur)  # Mettre à jour la couleur du cercle sélectionné
+    # Passer à la position suivante
+    position_x += 1
+    code_secret_2_joueur.append(canvas.itemcget(tk.CURRENT, "fill"))
+    if len(code_secret_2_joueur) == choix_nb_pions.get(): 
+        position_x = 0 #--> réinitilialise postition_x car on y a touché
+        lancer_partie()
+
+
+def couleur_mal_placees():
+    global couleur_mal_place,code_secret,liste_essai
+    couleur_mal_place = 0
+    code_copy = list(code_secret)  # Copie du code secret
+    
+    # Parcourez chaque pion de la proposition
+    for pion in liste_essai:
+        # Vérifiez si le pion est dans le code secret et mal placé
+        if pion in code_copy:
+            couleur_mal_place += 1  # Incrémente le nombre de pions mal placés
+            code_copy.remove(pion)  # Supprime le pion du code secret copié pour ne pas le compter à nouveau
+    
+    # Après avoir parcouru la proposition, nous ignorons les pions bien placés
+    for i in range(len(liste_essai)):
+        if liste_essai[i] == code_secret[i]:
+            couleur_mal_place -= 1
+    
+    print(couleur_mal_place)
+
+
+# Définition de la fonction pour comparer la proposition avec le code secret
+def compare():
+    global couleur_bien_place, liste_essai, code_secret
+    couleur_bien_place = 0
+    for i in range(len(code_secret)):
+        if code_secret[i] == liste_essai[i]:  # Si la couleur est bien placée
+            couleur_bien_place += 1  # Incrémente le nombre de couleurs bien placées
+    print(couleur_bien_place)
+    couleur_mal_placees()
+
+
+
+def couleur_selectionnee(event):
+    global position_x, position_y,hauteur_cercle, liste_essai,couleur_bien_place,couleur_mal_place,fin
+    if fin == 1:
+        return
+    couleur_bien_place = 0
+    couleur_mal_place = 0
+    couleur = canvas.itemcget(tk.CURRENT, "fill")  # Récupérer la couleur du cercle cliqué
+    canvas.itemconfig(cercles[position_y][position_x], fill=couleur)  # Mettre à jour la couleur du cercle sélectionné
+    # Passer à la position suivante
+    position_x += 1
+    liste_essai.append(canvas.itemcget(tk.CURRENT, "fill"))
+    if position_x == choix_nb_pions.get():  # Si nous avons atteint la fin de la ligne
+        position_x = 0
+        position_y += 1
+        if position_y == choix_nb_essais.get():  # Si nous avons atteint la fin de la grille
+            position_y = 0
+            position_x = 0
+    print(liste_essai)    
+    if len(liste_essai) == choix_nb_pions.get() :
+        compare()
+        cercle_noir(couleur_bien_place,hauteur_cercle)
+        cercle_blanc(couleur_mal_place,hauteur_cercle)
+        print(couleur_mal_place)
+        print(couleur_bien_place)
+        hauteur_cercle += 1
+        liste_essai.clear()
+        if couleur_bien_place == choix_nb_pions.get() :
+            fin_gagnant()
+    if choix_nb_essais.get() == hauteur_cercle - 1:
+        fin_perdant()
+
+    print(couleur_bien_place)
+    print(couleur_mal_place)
+
+def fin_gagnant():
+    global fin
+    x0 = 265 + choix_nb_pions.get() * 128
+    y0 = 350
+    canvas.create_text(x0,y0,text = 'Gagné !',font=("Courier", 60))
+    fin += 1
+
+
+
+def fin_perdant():
+    global code_secret,fin
+    x2 = 265 + choix_nb_pions.get() * 128
+    y2 = 350
+    canvas.create_text(x2,y2,text = 'Perdu !',font=("Courier", 60))
+    for i in range(len(code_secret)):
+        x0 = 100 + choix_nb_pions.get() * 128
+        x1 = 150 + choix_nb_pions.get() * 128
+        y0 = 600
+        y1 = 650
+        canvas.create_oval(x0 + i * 55,y0,x1+ i * 55,y1,fill = code_secret[i])
+    fin += 1
+
+def cercle_noir(nb,hauteur):
+    x0 = 150 + choix_nb_pions.get() * 80
+    x1 = 175 + choix_nb_pions.get() * 80
+    y0 = hauteur * 75 - 30
+    y1 = hauteur * 75 - 30
+    for j in range(nb):
+        canvas.create_oval(x0 + j * 25 , y0 + 25 , x1 + j * 25, y1 + 50, fill='black')
+
+def cercle_blanc(nb2,hauteur):
+    x0 = 150 + choix_nb_pions.get() * 80
+    x1 = 175 + choix_nb_pions.get() * 80
+    y0 = hauteur * 75 - 60
+    y1 = hauteur * 75 - 60
+    for j in range(nb2):
+        canvas.create_oval(x0 + j * 25 , y0 + 25 , x1 + j * 25, y1 + 50, fill='white')    
+
+
+def indice():
+    global nombre_indice
+    x0 = 100 + choix_nb_pions.get() * 128
+    x1 = 150 + choix_nb_pions.get() * 128
+    y0 = 50
+    y1 = 100
+    canvas.create_oval(x0 + nombre_indice * 55, y0, x1 + nombre_indice * 55, y1,fill = code_secret[nombre_indice] )
+    nombre_indice += 1
+
+def annuler():
+    global position_y,choix_nb_pions,cercles,hauteur_cercle
+    position_y_2 = position_y #permet de pouvoir remonter d'une ligne tout en blanchissant 
+    position_x = 0
+    for i in range(choix_nb_pions.get()):
+        position_x = i
+        canvas.itemconfig(cercles[position_y_2-1][position_x], fill='white')
+    x0 = 150 + choix_nb_pions.get() * 80
+    x1 = 175 + choix_nb_pions.get() * 80
+    y0 = hauteur_cercle * 75 - 110
+    y1 = hauteur_cercle * 75 - 50
+    canvas.create_rectangle(x0,y0,x1 + choix_nb_pions.get() * 25,y1,fill = 'burlywood',outline = 'burlywood')
+    position_y -= 1
+    hauteur_cercle -= 1
+
+afficher_menu(False)
+# Definition des fonction de sauvegarde et de chargement de la partie
+# Fonction de chargement de la partie
+
+fenetre.mainloop()
