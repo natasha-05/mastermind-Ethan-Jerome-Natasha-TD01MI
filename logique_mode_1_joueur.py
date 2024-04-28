@@ -40,7 +40,7 @@ code_secret = []  # Liste pour stocker le code secret
 
 # Fonction pour que le Joueur 1 entre le code secret
 def J1():
-    for i in range(4):
+    for i in range(nb_pions_code):#faire varier le nombre de pions pour les parametres
         indice_couleur = randint(0, len(choix_couleur) - 1)  
         couleur_choisie = choix_couleur[indice_couleur]  
         code_secret.append(couleur_choisie)  
@@ -52,9 +52,9 @@ def J2():
     nombre_tentatives = 0  
     
     # Boucle pour permettre au Joueur 2 de déchiffrer le code secret
-    while nombre_tentatives < 10:  
+    while nombre_tentatives < tentatives_max:  # Limite des tentativs pouvoir faire varier dans les parametres  
         proposition = []  
-        for i in range(4):
+        for i in range(nb_pions_code):#faire varier le nombre de pions parametre
             proposition.append(input("Joueur 2, décodez : "))  
             
         print(proposition)  
