@@ -38,7 +38,7 @@ def compare(code_secret, proposition):
 choix_couleur = ["white", "blue", "green", "yellow", "pink", "purple", "orange", "black"] 
 code_secret = []  # Liste pour stocker le code secret
 
-# Fonction pour que le Joueur 1 entre le code secret
+# Fonction pour générer le code secret
 def J1():
     for i in range(nb_pions_code):#faire varier le nombre de pions pour les parametres
         indice_couleur = randint(0, len(choix_couleur) - 1)  
