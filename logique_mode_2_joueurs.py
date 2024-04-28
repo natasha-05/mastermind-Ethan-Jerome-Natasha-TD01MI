@@ -17,7 +17,7 @@ def couleur_mal_placees(code_secret, proposition):
         if proposition[i] == code_secret[i]:
             mal_placees -= 1
     
-    return max(0, mal_placees)
+    
 
 
 
